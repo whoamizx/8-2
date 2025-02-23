@@ -134,18 +134,18 @@ def get_gpu_memory(max_gpus=None):
     for gpu_id in range(num_gpus):
         #TODO: 将当前MLU设备设置为gpu_id
         torch_mlu.set_device(gpu_id)
-            #TODO: 获取当前MLU设备
-            device = gpu_id
-            #TODO: 获取当前MLU设备的属性
-            gpu_properties = torch_mlu.get_device_properties(device)
-            #TODO: 获取总内存，单位转换为GB
-            total_memory = gpu_properties.total_memory / (1024**3)
-            #TODO: 获取已分配内存，单位转换为GB
-            allocated_memory = torch_mlu.memory_allocated(device) / (1024**3)
-            #TODO: 计算可用内存，单位转换为GB
-            available_memory = total_memory - allocated_memory
-            #TODO:将可用内存信息添加到列表中
-            gpu_memory.append(available_memory)
+        #TODO: 获取当前MLU设备
+        device = gpu_id
+        #TODO: 获取当前MLU设备的属性
+        gpu_properties = torch_mlu.get_device_properties(device)
+        #TODO: 获取总内存，单位转换为GB
+        total_memory = gpu_properties.total_memory / (1024**3)
+        #TODO: 获取已分配内存，单位转换为GB
+        allocated_memory = torch_mlu.memory_allocated(device) / (1024**3)
+        #TODO: 计算可用内存，单位转换为GB
+        available_memory = total_memory - allocated_memory
+        #TODO:将可用内存信息添加到列表中
+        gpu_memory.append(available_memory)
     return gpu_memory
 
 
