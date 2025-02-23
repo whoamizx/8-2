@@ -52,7 +52,7 @@ class Conversation:
     def get_prompt(self) -> str:
         """Get the prompt for generation."""
         #TODO:# 如果分隔符样式为ADD_COLON_SINGLE
-        if _________________________________________________
+        if self.sep_style == SeparatorStyle.ADD_COLON_SINGLE:
             ret = self.system + self.sep
             for role, message in self.messages:
                 if message:
@@ -61,7 +61,7 @@ class Conversation:
                     ret += role + ":"
             return ret
         #TODO:# 如果分隔符样式为ADD_COLON_TWO
-        elif _________________________________________________
+        elif self.sep_style == SeparatorStyle.ADD_COLON_TWO:
             seps = [self.sep, self.sep2]
             ret = self.system + seps[0]
             for i, (role, message) in enumerate(self.messages):
@@ -71,7 +71,7 @@ class Conversation:
                     ret += role + ":"
             return ret
         #TODO: 如果分隔符样式为NO_COLON_SINGLE
-        elif _________________________________________________
+        elif self.sep_style == SeparatorStyle.NO_COLON_SINGLE:
             ret = self.system
             for role, message in self.messages:
                 if message:
@@ -80,7 +80,7 @@ class Conversation:
                     ret += role
             return ret
         #TODO: 如果分隔符样式为BAIZE
-        elif _________________________________________________
+        elif self.sep_style == SeparatorStyle.BAIZE:
             ret = self.system + "\n"
             for role, message in self.messages:
                 if message:
@@ -89,7 +89,7 @@ class Conversation:
                     ret += role
             return ret
         #TODO: 如果分隔符样式为DOLLY
-        elif _________________________________________________
+        elif self.sep_style == SeparatorStyle.DOLLY:
             seps = [self.sep, self.sep2]
             ret = self.system
             for i, (role, message) in enumerate(self.messages):
@@ -101,7 +101,7 @@ class Conversation:
                     ret += role + ":\n"
             return ret
         #TODO: 如果分隔符样式为RWKV
-        elif _________________________________________________
+        elif self.sep_style == SeparatorStyle.RWKV:
             ret = self.system
             for i, (role, message) in enumerate(self.messages):
                 if message:
@@ -115,7 +115,7 @@ class Conversation:
                     ret += role + ":"
             return ret
         #TODO: 如果分隔符样式为PHOENIX
-        elif _________________________________________________
+        elif self.sep_style == SeparatorStyle.PHOENIX:
             ret = self.system
             for role, message in self.messages:
                 if message:
@@ -124,7 +124,7 @@ class Conversation:
                     ret += role + ": " + "<s>"
             return ret
         #TODO: 如果分隔符样式为NEW_LINE
-        elif _________________________________________________
+        elif self.sep_style == SeparatorStyle.NEW_LINE:
             ret = self.system + self.sep
             for role, message in self.messages:
                 if message:
@@ -138,7 +138,7 @@ class Conversation:
     def append_message(self, role: str, message: str):
         """Append a new message."""
         #TODO:将角色和消息内容作为列表添加到对话历史中。
-        ____________________________________________
+        self.messages.append([role, message])
 
     def to_gradio_chatbot(self):
         """Convert the history to gradio chatbot format"""
@@ -146,7 +146,7 @@ class Conversation:
         for i, (role, msg) in enumerate(self.messages[self.offset :]):
             if i % 2 == 0:
                 #TODO:# 对话历史中偶数索引的消息作为用户消息，将其添加为列表的第一个元素，第二个元素置为None
-                ________________________________________
+                ret.append([msg, None])
             else:
                 ret[-1][-1] = msg
         return ret
@@ -158,7 +158,7 @@ class Conversation:
         for i, (_, msg) in enumerate(self.messages[self.offset :]):
             if i % 2 == 0:
                 #TODO:# 对话历史中偶数索引的消息作为用户消息，将其添加为字典到列表
-                ________________________________________
+                ret.append({"role": "user", "content": msg})
             else:
                 if msg is not None:
                     ret.append({"role": "assistant", "content": msg})
@@ -166,18 +166,18 @@ class Conversation:
 
     def copy(self):
         new_conv = Conversation(
-            name=_________________________,
-            system=_______________________,
-            roles=________________________,
+            name=self.name,
+            system=self.system,
+            roles=self.roles,
             messages=[[x, y] for x, y in self.messages],
-            offset=_______________________,
-            sep_style=____________________,
-            sep=__________________________,
-            sep2=_________________________,
+            offset=self.offset,
+            sep_style=self.sep_style,
+            sep=self.sep,
+            sep2=self.sep2,
             stop_str=self.stop_str,
             stop_token_ids=self.stop_token_ids,
-            conv_id=______________________,
-            model_name=___________________,
+            conv_id=self.conv_id,
+            model_name=self.model_name,
         )
         print("CONVERSATION PASS!")  # 添加的打印语句
         return new_conv
