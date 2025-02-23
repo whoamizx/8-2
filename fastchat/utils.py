@@ -128,9 +128,8 @@ def get_gpu_memory(max_gpus=None):
     #TODO: 存储每个GPU的可用内存信息
     gpu_memory = []
     #TODO: 获取MLU设备的数量，如果未指定最大GPU数（max_gpus为None），则使用所有可用设备;否则，使用max_gpus和实际设备数量中的较小值
-    num_gpus = (
-    total_devices if max_gpus is None else min(max_gpus, total_devices)
-    )
+    total_devices = torch_mlu.device_count()
+    num_gpus = total_devices if max_gpus is None else min(max_gpus, total_devices)
 
     for gpu_id in range(num_gpus):
         #TODO: 将当前MLU设备设置为gpu_id
