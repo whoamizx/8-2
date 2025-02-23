@@ -1,0 +1,4 @@
+fschat.egg-info
+__pycache__
+run_scripts/*.log
+run_scripts/*.json
