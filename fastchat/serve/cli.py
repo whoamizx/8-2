@@ -22,7 +22,7 @@ from fastchat.serve.inference import chat_loop, ChatIO
 
 
 #TODO:构建SimpleChatIO类，它继承自ChatIO类
-_________________________________:
+class SimpleChatIO(ChatIO):
     def prompt_for_input(self, role) -> str:
         return input(f"{role}: ")
 
@@ -34,12 +34,12 @@ _________________________________:
         for outputs in output_stream:
             output_text = outputs["text"]
             #TODO: 移除文本两端的空白字符，然后按空格分割
-            output_text = _________________________________
+            output_text = outputs["text"].strip().split()
             #TODO: 获取处理后的文本中单词的数量
-            now = _________________________________
+            now = len(output_text)
             if now > pre:
                 # 输出不同于前次的部分,其中，新增的内容以空格分隔的形式显示，确保每次新增的内容都在同一行，并及时刷新输出缓冲区。
-                _________________________________
+                print(" ".join(output_text[pre:]), end=" ", flush=True)
                 pre = now
         print(" ".join(output_text[pre:]), flush=True)
         print("CHATIO PASS!")
@@ -47,16 +47,16 @@ _________________________________:
 
 
 #TODO:构建RichChatIO类，它继承自ChatIO类
-_________________________________:
+class RichChatIO(ChatIO):
     def __init__(self):
         #TODO: 创建PromptSession实例，用于获取用户输入，并设置输入历史记录
-        self._prompt_session = __________________________________________________
+        self._prompt_session = PromptSession(history=InMemoryHistory())
         #TODO: 创建自动补全器，用于用户输入的自动完成
-        self._completer =___________________________(
+        self._completer =WordCompleter(
             words=["!exit", "!reset"], pattern=re.compile("$")
         )
         #TODO:创建Console 实例，在命令行界面中以更丰富的样式显示文本
-        self._console = ___________________________
+        self._console = Console()
 
     def prompt_for_input(self, role) -> str:
         self._console.print(f"[bold]{role}:")
@@ -65,7 +65,7 @@ _________________________________:
             completer=self._completer,
             multiline=False,
             #TODO：启用自动建议功能
-            auto_suggest=_______________________________,
+            auto_suggest=AutoSuggestFromHistory(),
             key_bindings=None,
         )
         self._console.print()
@@ -82,7 +82,7 @@ _________________________________:
         # Create a Live context for updating the console output
 
         #TODO: 创建Live上下文管理器，用于实现在命令行中实时更新显示。其中，需要指定要在其上执行实时更新的console实例,每秒刷新的次数设为4
-        _______________________________________________as live:
+        with Live(console=self._console, refresh_per_second=4) as live:
             # Read lines from the stream
             for outputs in output_stream:
                 if not outputs:
@@ -110,7 +110,7 @@ _________________________________:
                         lines.append("  \n")
                 markdown = Markdown("".join(lines))
                 #TODO: 将渲染后的 markdown 文本实时更新到控制台
-                _______________________________________
+                live.update(markdown)
         self._console.print()
         print("CHATIO PASS!")
         return text
@@ -132,7 +132,19 @@ def main(args):
         raise ValueError(f"Invalid style for console: {args.style}")
     try:
         #TODO:调用 chat_loop 函数，启动聊天循环
-        ________________________________________
+        chat_loop(
+            args.model,
+            args.device,
+            args.num_gpus,
+            args.max_gpu_memory,
+            args.load_8bit,
+            args.cpu_offloading,
+            args.conv_template,
+            args.temperature,
+            args.max_new_tokens,
+            chatio,
+            args.debug,
+        )
 
     except KeyboardInterrupt:
         print("exit...")
@@ -140,9 +152,9 @@ def main(args):
 
 if __name__ == "__main__":
     #TODO： 创建一个ArgumentParser对象，用于解析命令行参数
-    parser = _____________________________________
+    parser = argparse.ArgumentParser(description="FastChat CLI")
     #TODO: 向ArgumentParser对象中添加模型相关的参数，这些参数由add_model_args函数定义
-    ________________________________________________
+    add_model_args(parser)
     parser.add_argument(
         "--conv-template", type=str, default=None, help="Conversation prompt template."
     )
@@ -153,7 +165,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--style",
         type=str,
-        default="____________",
+        default="simple",
         choices=["simple", "rich"],
         help="Display style.",
     )
