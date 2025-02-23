@@ -357,7 +357,7 @@ def chat_loop(
         "model": model_path,
         "prompt": prompt,
         "temperature": temperature,
-        "max_new_tokens": max_new_tokens,
+        "max_new_tokens": 128,
         "stop": conv.stop_str,
         "stop_token_ids": conv.stop_token_ids,
         "echo": False,

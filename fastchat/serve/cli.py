@@ -117,9 +117,9 @@ class RichChatIO(ChatIO):
 
 
 def main(args):
-    if args.device == "mlu":
-        import os
-        os.environ.setdefault("PYTORCH_MLU_ALLOC_CONF", "max_split_size_mb:128")
+    # if args.device == "mlu":
+    #     import os
+    #     os.environ.setdefault("PYTORCH_MLU_ALLOC_CONF", "max_split_size_mb:128")
     if args.gpus:
         if len(args.gpus.split(",")) < args.num_gpus:
             raise ValueError(
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         "--conv-template", type=str, default=None, help="Conversation prompt template."
     )
     parser.add_argument("--temperature", type=float, default=0.7)
-    parser.add_argument("--max-new-tokens", type=int, default=512)
+    parser.add_argument("--max-new-tokens", type=int, default=128)
 
     #TODO:试一下simple模式，同时也试一下rich模式。
     parser.add_argument(
