@@ -260,7 +260,7 @@ def generate_stream(
     del past_key_values, out
     gc.collect()
     #TODO:释放MLU设备上的缓存空间
-    if device.startswith("mlu"):
+    if device.startswith("mlu") and hasattr(torch_mlu, "empty_cache"):
         torch_mlu.empty_cache()
 
 
