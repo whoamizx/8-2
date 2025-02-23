@@ -302,43 +302,68 @@ def chat_loop(
         #TODO:否则使用默认的对话模板,调用get_conversation_template创建会话对象
         conv = get_conversation_template(model_path)
     print("GENERATE STEAM PASS!")   
-    while True:
-        try:
-            #TODO: 尝试获取用户输入，传入 conv.roles[0] 作为角色标识
-            inp = chatio.prompt_for_input(conv.roles[0])
-        except EOFError:
-            inp = ""
-        if not inp:
-            print("exit...")
-            break
+    # while True:
+    #     try:
+    #         #TODO: 尝试获取用户输入，传入 conv.roles[0] 作为角色标识
+    #         inp = chatio.prompt_for_input(conv.roles[0])
+    #     except EOFError:
+    #         inp = ""
+    #     if not inp:
+    #         print("exit...")
+    #         break
 
-        conv.append_message(conv.roles[0], inp)
-        conv.append_message(conv.roles[1], None)
+    #     conv.append_message(conv.roles[0], inp)
+    #     conv.append_message(conv.roles[1], None)
 
-        if is_chatglm:
-            generate_stream_func = chatglm_generate_stream
-            prompt = conv.messages[conv.offset :]
-        else:
-            generate_stream_func = generate_stream
-            prompt = conv.get_prompt()
+    #     if is_chatglm:
+    #         generate_stream_func = chatglm_generate_stream
+    #         prompt = conv.messages[conv.offset :]
+    #     else:
+    #         generate_stream_func = generate_stream
+    #         prompt = conv.get_prompt()
 
-        gen_params = {
-            "model": model_path,
-            "prompt": prompt,
-            "temperature": temperature,
-            "max_new_tokens": max_new_tokens,
-            "stop": conv.stop_str,
-            "stop_token_ids": conv.stop_token_ids,
-            "echo": False,
-        }
+    #     gen_params = {
+    #         "model": model_path,
+    #         "prompt": prompt,
+    #         "temperature": temperature,
+    #         "max_new_tokens": max_new_tokens,
+    #         "stop": conv.stop_str,
+    #         "stop_token_ids": conv.stop_token_ids,
+    #         "echo": False,
+    #     }
 
-        #TODO: 获取机器对话输出，传入 conv.roles[1] 作为角色标识
-        output_stream = generate_stream_func(model, tokenizer, gen_params, device)
-        output_stream = generate_stream_func(model, tokenizer, gen_params, device)
-        #TODO：# 输出对话的流式输出
-        outputs =chatio.stream_output(output_stream)
-        # NOTE: strip is important to align with the training data.
-        conv.messages[-1][-1] = outputs.strip()
-        if debug:
-            print("\n", {"prompt": prompt, "outputs": outputs}, "\n")
-        print("FASTCHAT INFERENCE PASS!")
+    #     #TODO: 获取机器对话输出，传入 conv.roles[1] 作为角色标识
+    #     output_stream = generate_stream_func(model, tokenizer, gen_params, device)
+    #     output_stream = generate_stream_func(model, tokenizer, gen_params, device)
+    #     #TODO：# 输出对话的流式输出
+    #     outputs =chatio.stream_output(output_stream)
+    #     # NOTE: strip is important to align with the training data.
+    #     conv.messages[-1][-1] = outputs.strip()
+    #     if debug:
+    #         print("\n", {"prompt": prompt, "outputs": outputs}, "\n")
+    #     print("FASTCHAT INFERENCE PASS!")
+    inp = "你好"
+    conv.append_message(conv.roles[0], inp)
+    conv.append_message(conv.roles[1], None)
+
+    if is_chatglm:
+        generate_stream_func = chatglm_generate_stream
+        prompt = conv.messages[conv.offset :]
+    else:
+        generate_stream_func = generate_stream
+        prompt = conv.get_prompt()
+
+    gen_params = {
+        "model": model_path,
+        "prompt": prompt,
+        "temperature": temperature,
+        "max_new_tokens": max_new_tokens,
+        "stop": conv.stop_str,
+        "stop_token_ids": conv.stop_token_ids,
+        "echo": False,
+    }
+
+    output_stream = generate_stream_func(model, tokenizer, gen_params, device)
+    outputs = chatio.stream_output(output_stream)
+    conv.messages[-1][-1] = outputs.strip()
+    print("FASTCHAT INFERENCE PASS!")
