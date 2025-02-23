@@ -133,7 +133,7 @@ def main(args):
     try:
         #TODO:调用 chat_loop 函数，启动聊天循环
         chat_loop(
-            args.model,
+            args.model_path,
             args.device,
             args.num_gpus,
             args.max_gpu_memory,
