@@ -117,6 +117,9 @@ class RichChatIO(ChatIO):
 
 
 def main(args):
+    if args.device == "mlu":
+        import os
+        os.environ.setdefault("PYTORCH_MLU_ALLOC_CONF", "max_split_size_mb:128")
     if args.gpus:
         if len(args.gpus.split(",")) < args.num_gpus:
             raise ValueError(
