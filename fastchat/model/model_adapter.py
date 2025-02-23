@@ -104,12 +104,14 @@ def load_model(
     """Load a model from Hugging Face."""
 
     #TODO: 处理设备映射，调用函数，检查并更新CPU offloading的配置
-    cpu_offloading = ____________________________________________________________
+    cpu_offloading = raise_warning_for_incompatible_cpu_offloading_configuration(
+        device, load_8bit, cpu_offloading
+    )
     #TODO: 如果设备是CPU
-    if _______________________:
+    if device == "cpu":
         kwargs = {"torch_dtype": torch.float32}
     #TODO: 如果设备是MLU    
-    elif _______________________:
+    elif device == "mlu":
         kwargs = {"torch_dtype": torch.float16}
         if num_gpus != 1:
             kwargs["device_map"] = "auto"
@@ -118,7 +120,7 @@ def load_model(
                     "device_map"
                 ] = "sequential"  # This is important for not the same VRAM sizes
                 #TODO:获取每个GPU的可用内存
-                available_gpu_memory = _______________________
+                available_gpu_memory = get_gpu_memory(max_gpus=num_gpus)
                 kwargs["max_memory"] = {
                     i: str(int(available_gpu_memory[i] * 0.85)) + "GiB"
                     for i in range(num_gpus)
@@ -126,7 +128,7 @@ def load_model(
             else:
                 kwargs["max_memory"] = {i: max_gpu_memory for i in range(num_gpus)}
     #TODO: 如果设备是mps
-    elif _______________________:
+    elif device == "mps":
         kwargs = {"torch_dtype": torch.float16}
         # Avoid bugs in mps backend by not using in-place operations.
         replace_llama_attn_with_non_inplace_operations()
@@ -134,7 +136,7 @@ def load_model(
         raise ValueError(f"Invalid device: {device}")
 
     #TODO: 如果启用了CPU offloading
-    if _______________________:
+    if cpu_offloading:
         # raises an error on incompatible platforms
         from transformers import BitsAndBytesConfig
 
@@ -147,19 +149,19 @@ def load_model(
         )
         kwargs["load_in_8bit"] = load_8bit
     #TODO: 如果启用了8位量化但未启用CPU offloading
-    _______________________:
+    elif load_8bit and not cpu_offloading:
         if num_gpus != 1:
             warnings.warn(
                 "8-bit quantization is not supported for multi-gpu inference."
             )
         else:
             #TODO:调用压缩模型的函数
-            return ___________________________________________________________
+            return load_compress_model(model_path, from_pretrained_kwargs=kwargs)
 
     #TODO:调用函数，根据给定的模型路径获取适配器，遍历已注册的模型适配器列表，返回第一个匹配的适配器实例。
-    adapter = ___________________________________________________________
+    adapter = get_model_adapter(model_path)
     #TODO：使用适配器adapter加载模型和分词器
-    model, tokenizer = ___________________________________________________________
+    model, tokenizer = adapter.load_model(model_path, from_pretrained_kwargs=kwargs)
  
     if (device == "mlu" and num_gpus == 1 and not cpu_offloading) or device == "mps":
         model.to(device)
@@ -172,9 +174,9 @@ def load_model(
 
 def get_conversation_template(model_path: str) -> Conversation:
     #TODO: 调用函数,获取适用于给定模型路径的模型适配器
-    adapter = __________________________________________
+    adapter = get_model_adapter(model_path)
     #TODO: 使用适配器获取默认的对话模板
-    return _____________________________________________
+    return adapter.get_default_conv_template(model_path)
 
 def add_model_args(parser):
     parser.add_argument(
